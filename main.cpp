@@ -114,6 +114,14 @@ void fixWindowTop() {
     }
 }
 
+SDL_Joystick* getGuitar() {
+    if (SDL_NumJoysticks() != 1) {
+        // MessageBoxA(NULL, "No joystick connected or multiple??", "lol bozo", MB_OK);
+        return nullptr;
+    }
+    return SDL_JoystickOpen(0);
+}
+
 void eventHandler(const SDL_Event& event) {
     switch (event.type) {
         case SDL_JOYBUTTONDOWN:
@@ -124,6 +132,15 @@ void eventHandler(const SDL_Event& event) {
         case SDL_JOYBUTTONUP:
             render_flag = true;
             pressed[event.jbutton.button] = false;
+            break;
+        case SDL_JOYDEVICEREMOVED:
+            SDL_JoystickClose(guitar);
+            guitar = nullptr;
+            break;
+        case SDL_JOYDEVICEADDED:
+            if (!guitar) {
+                guitar = getGuitar();
+            }
             break;
 
         case SDL_MOUSEBUTTONDOWN:
@@ -171,14 +188,6 @@ void clean() {
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();
-}
-
-SDL_Joystick* getGuitar() {
-    if (SDL_NumJoysticks() != 1) {
-        MessageBoxA(NULL, "No joystick connected or multiple??", "lol bozo", MB_OK);
-        return nullptr;
-    }
-    return SDL_JoystickOpen(0);
 }
 
 void fillWindowXY() {
@@ -238,10 +247,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     guitar = getGuitar();
-    if (!guitar) {
-        clean();
-        return 1;
-    }
+    // if (!guitar) {
+    //     clean();
+    //     return 1;
+    // }
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     fillWindowXY();
     window = SDL_CreateWindow("", window_x, window_y, window_w, window_h, SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_BORDERLESS | SDL_WINDOW_SHOWN | SDL_WINDOW_SKIP_TASKBAR);
