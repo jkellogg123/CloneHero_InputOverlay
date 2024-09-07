@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                // "${workspaceFolder}/main.cpp",
+                // "${workspaceFolder}/testing.cpp",
+                "${workspaceFolder}/main_qt.cpp",
+                "-o",
+                // "${workspaceFolder}/main.exe",
+                // "${workspaceFolder}/testing.exe",
+                "${workspaceFolder}/main_qt.exe",
+                "-I${workspaceFolder}/SDL2/include",
+                // "-I${workspaceFolder}/SDL2/tff/include",
+                "-I${workspaceFolder}/Qt/6.7.2/llvm-mingw_64/include",
+                "-I${workspaceFolder}/Qt/6.7.2/llvm-mingw_64/include/QtWidgets",
+                "-I${workspaceFolder}/Qt/6.7.2/llvm-mingw_64/include/QtCore",
+                "-I${workspaceFolder}/Qt/6.7.2/llvm-mingw_64/include/QtGui",
+                "-L${workspaceFolder}/Qt/6.7.2/llvm-mingw_64/lib",
+                "-L${workspaceFolder}/SDL2/lib",
+                // "-L${workspaceFolder}/SDL2/tff/lib",
+                "-lSDL2",
+                // "-lSDL2_ttf",
+                "-lQt6Widgets",
+                "-lQt6Core",
+                "-lQt6Gui",
+                "-mwindows"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Build C++ program with SDL"
+        }
+    ]
+}
