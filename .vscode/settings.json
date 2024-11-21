@@ -46,7 +46,8 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "qapplication": "cpp"
+        "qapplication": "cpp",
+        "qmouseevent": "cpp"
     },
     "git.ignoreLimitWarning": true,
     "cmake.configureOnOpen": false

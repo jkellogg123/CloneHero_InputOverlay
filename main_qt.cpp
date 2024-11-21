@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <winuser.h>    // virtual key codes "VK_UP" / "VK_DOWN"
 #include <SDL.h>
 // #include <SDL_syswm.h>
 
@@ -43,6 +44,15 @@ bool render_flag = true;
 const int window_w = (6 * FRET_WIDTH) + (5 * FRET_GAP);
 const int window_h = FRET_HEIGHT;
 enum button {green, red, yellow, blue, orange, sup=5, sdown=8, strum=5};
+std::unordered_map<int, button> key_to_button = {
+    {'G', green},
+    {'H', red},
+    {'J', yellow},
+    {'K', blue},
+    {'L', orange},
+    {VK_UP, sup},
+    {VK_DOWN, sdown}
+};
 std::unordered_map<int, unsigned long> press_count;
 std::unordered_map<int, bool> pressed;
 
@@ -249,6 +259,36 @@ int initQt() {
     return 0;
 }
 
+// dumb, needed to capture keyboard inputs out of focus
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    // Check if the event is a key press
+    if (nCode == HC_ACTION) {
+        KBDLLHOOKSTRUCT *kbd = (KBDLLHOOKSTRUCT*)lParam;
+        switch (wParam) {
+            case WM_KEYDOWN:
+            case WM_SYSKEYDOWN:
+            case WM_KEYUP:
+            case WM_SYSKEYUP:
+                DWORD key = kbd->vkCode;
+                if (key_to_button.find(key) != key_to_button.end()) {
+                    button butt = key_to_button[key];
+                    if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+                        if (!pressed[butt]) {
+                            press_count[butt] += 1;
+                            pressed[butt] = true;
+                            render_flag = true;
+                        }
+                    }
+                    // up/release
+                    else {
+                        pressed[butt] = false;
+                        render_flag = true;
+                    }
+                }
+        }
+    }
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     int argc = 0;
@@ -259,8 +299,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 1;
     }
 
+    // see comment above this function
+    HHOOK keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
+
     int result = app.exec();
 
     clean();
+    UnhookWindowsHookEx(keyboardHook);
     return result;
 }
