@@ -15,6 +15,10 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <string>
+#include <fstream>
+
+#include "json.hpp"
 
 const int FRET_WIDTH = 100;
 const int FRET_HEIGHT = 80;
@@ -53,7 +57,7 @@ std::unordered_map<int, button> key_to_button = {
     {VK_UP, sup},
     {VK_DOWN, sdown}
 };
-std::unordered_map<int, unsigned long> press_count;
+std::unordered_map<int, unsigned long long> press_count;
 std::unordered_map<int, bool> pressed;
 
 void print(const char* str) {
@@ -290,6 +294,41 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
+// tracks cumulative counts
+void addCounts() {
+    const std::string file_name = "counter.json";
+    nlohmann::json data;
+    std::fstream file(file_name);
+    // nonempty and is_open
+    if (file.peek() != std::ifstream::traits_type::eof() && file.is_open()) {
+        file >> data;
+    }
+    else {
+        data["green"] = 0;
+        data["red"] = 0;
+        data["yellow"] = 0;
+        data["blue"] = 0;
+        data["orange"] = 0;
+        data["sup"] = 0;
+        data["sdown"] = 0;
+    }
+    file.close();
+
+    data["green"] = data["green"].get<unsigned long long>() + press_count[green];
+    data["red"] = data["red"].get<unsigned long long>() + press_count[red];
+    data["yellow"] = data["yellow"].get<unsigned long long>() + press_count[yellow];
+    data["blue"] = data["blue"].get<unsigned long long>() + press_count[blue];
+    data["orange"] = data["orange"].get<unsigned long long>() + press_count[orange];
+    data["sup"] = data["sup"].get<unsigned long long>() + press_count[sup];
+    data["sdown"] = data["sdown"].get<unsigned long long>() + press_count[sdown];
+
+    std::ofstream outFile(file_name);
+    outFile << data.dump(4);
+    outFile.close();
+
+    return;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     int argc = 0;
     char* argv[] = {nullptr};
@@ -304,6 +343,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     int result = app.exec();
 
+    addCounts();
     clean();
     UnhookWindowsHookEx(keyboardHook);
     return result;

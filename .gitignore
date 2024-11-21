@@ -1,3 +1,4 @@
 *.exe
 testing.cpp
 Qt
+counter.json
