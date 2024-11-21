@@ -1,14 +1,17 @@
 ## Introduction
 This is a Windows desktop application that will display an input overlay of your guitar inputs (frets and strums).
 
-Press "esc" to close the input overlay, while it's in focus
-Can click and hold to drag, then right-click to return overlay to bottom-right of screen
+Press "esc" to close the input overlay, while it's in focus.
+Can click and hold to drag, then right-click to return overlay to bottom-right of screen.
+
+Tracks cumulative button presses in local json file.
 
 
 ## Packages
 1. Qt installation (Core, Widgets, Gui - dlls are included)
 2. SDL (included)
-3. windows.h and STL
+3. nlohmann JSON library (included)
+4. windows.h and STL
 
 
 ## How to build
@@ -20,4 +23,4 @@ This was originally built on Windows using MinGW, g++ (13.2.0) using the followi
 ## New feature ideas
 This section is just to put ideas for new features/changes.
 
-1. manage the metric ton of dlls (platforms directory too) better / organize repo better lol
+1. manage the metric ton of dlls (platforms directory too) better / organize repo better lol.
